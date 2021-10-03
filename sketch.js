@@ -1,110 +1,102 @@
-var bg,sleep, brush, gym, eat, bath, move;
-var astronaut;
+var towerImg, tower;
+var doorImg, door, doorsGroup;
+var climberImg, climber, climbersGroup;
+var ghost, ghostImg;
+var invisibleBlockGroup, invisibleBlock;
+var gameState = "play"
+var gameState = "end"
 
 function preload(){
-  bg= loadImage("images/iss.png");
-  sleep = loadAnimation("images/sleep.png");
-  brush = loadAnimation("images/brush.png");
-  gym = loadAnimation("images/gym1.png","images/gym2.png");
-  eat = loadAnimation("images/eat1.png","images/eat2.png",);
-  bath = loadAnimation("images/bath1.png","images/bath2.png");
- move = loadAnimation("images/move1.png","images/move2.png",);
+  towerImg = loadImage("tower.png");
+  doorImg = loadImage("door.png");
+  climberImg = loadImage("climber.png");
+  //ghostImg = loadImage("ghost-standing.png");
+  //spookySound = loadSound("spooky.wav");
 }
 
 function setup() {
-  createCanvas(600, 500);
+  createCanvas(600, 600);
+  tower = createSprite(300,300);
+  tower.addImage("tower",towerImg);
+  tower.velocityY = 1;
   
-  astronaut = createSprite(300,230);
-  astronaut.addAnimation("sleeping", sleep);
-  astronaut.scale = 0.1;
+  ghost = createSprite(200,200);
+  ghost.addImage("ghost",ghostImg);
+  ghost.scale = 0.3;
   
+  doorsGroup = new Group();
+  climbersGroup = new Group();
+  invisibleBlockGroup = new Group();
 }
 
 function draw() {
-  background(bg);
-  drawSprites();
+  background(200);
+  if(gamestate==="play"){
 
-  textSize(20);
-  fill("white")
-  text("Instructions:",20, 35);
-  textSize(15);
-  text("Up Arrow = Brushing",20, 55);
-  text("Down Arrow = Gymming",20, 70);
-  text("Left Arrow = Eating",20, 85);
-  text("Right Arrow = Bathing",20, 100);
-  text("m key = Moving",20, 115);
   
-  /*edges=createEdgeSprites();
-  astronautbounce.Off(edges);*/
-
-  /*edges=createEdgeSprites();
-  astronaut.BounceOff(edges);*/
-
-  edges=createEdgeSprites();
-  astronaut.bounceOff(edges);
-
-  //edges=createEdgeSprite();
-  //astronaut.bounceOff(edges);
-  
-  if(keyDown("UP_ARROW")){
-    astronaut.addAnimation("brushing", brush);
-    astronaut.changeAnimation("brushing");
-    astronaut.y = 350;
-    astronaut.velocityX = 0;
-    astronaut.velocityY = 0;
+  if(keyDown("space")){
+    ghost.velocityY=-10;
+  }
+  ghost.velocityY=ghost.velocityY+0.65;
+  if(keyDown("left")){
+    ghost.velocityX=-3
+  }
+  if(keyDown("right")){
+    ghost.velocityX=3
   }
   
-  if(keyDown("DOWN_ARROW")){
-    astronaut.addAnimation("gymming", gym);
-    astronaut.changeAnimation("gymming");
-    astronaut.y = 350;
-    astronaut.velocityX = 0;
-    astronaut.velocityY = 0;
+  if(tower.y > 400){
+      tower.y = 300
+    }
+    spawnDoors();
+    if(climbersGroup.isTouching(ghost)){
+      ghost.velocityY=0
+    }
+    if(invisibleBlockGroup.isTouching(ghost)|| ghost.y>600){
+      ghost.destroy();
+      gamestate="end"
+    }
+
   }
-  
-  if(keyDown("LEFT_ARROW")){
-    astronaut.addAnimation("eating", eat);
-    astronaut.changeAnimation("eating");
-    astronaut.x = 150;
-    astronaut.y = 350;
-    astronaut.velocityX = 0.5;
-    astronaut.velocityY = 0.5;
-  }
-  
-  if(keyDown("RIGHT_ARROW")){
-    astronaut.addAnimation("bathing", bath);
-    astronaut.changeAnimation("bathing");
-    astronaut.x = 300;
-    astronaut.velocityX = 0;
-    astronaut.velocityY = 0;
+  if(gamestate==="end"){
+    text("gameover",200,200)
   }
 
-  /*if(key Down("m")){
-    astronaut.addAnimation("moving", move);
-    astronaut.changeAnimation("moving");
-    astronaut.velocityX = 1;
-    astronaut.velocityY = 1;
-  }*/
+    
+    drawSprites();
+}
 
-  /*if(keyDown("m")){
-    astronaut.addAnimation("moving", move);
-    astronaut.changeAnimation("moving");
-    astronaut.velocityX = 0;
-    astronaut.velocityY = 0;
-  }*/
+function spawnDoors(){
+  if(frameCount % 200===0){
+   door = createSprite(200,-50);
+   climber = createSprite(200,10);
+   invisibleBlock = createSprite(200,15);
 
-  if(keyDown("m")){
-    astronaut.changeAnimation("moving", move);
-    astronaut.changeAnimation("moving");
-    astronaut.velocityX = 1;
-    astronaut.velocityY = 1;
+   door.addImage("door",doorImg);
+   climber.addImage("climber",climberImg);
+
+   climber.velocityY=2;
+   door.velocityY=2;
+  invisibleBlock.velocityY=2;
+
+   door.x=Math.round(random(120,400))
+   climber.x=door.x;
+  invisibleBlock.x=door.x;
+
+   invisibleBlock.width=climber.width
+   invisibleBlock.height=2;
+   
+
+   climber.lifetime=350;
+   door.lifetime=350;
+
+   doorsGroup.add(door);
+   climbersGroup.add(climber);
+   invisibleBlockGroup.add(invisibleBlock);
+   invisibleBlock.debug=true;
+
+   ghost.depth=door.depth
+   ghost.depth=ghost.depth+1
+   
   }
-
-  //if(keyDown("m")){
-    //astronaut.addAnimation("moving", move);
-    //astronaut.changeAnimation("moving");
-    //astronaut.velocityX = 1;
-    //astronaut.velocityY = 1;
-  
-
 }
